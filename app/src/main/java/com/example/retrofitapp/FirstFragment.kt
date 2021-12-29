@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -18,6 +18,7 @@ import com.example.retrofitapp.api.DeezerApi
 import com.example.retrofitapp.api.DeezerApiClient
 import com.example.retrofitapp.models.Data
 import com.example.retrofitapp.models.PlayList
+import com.example.retrofitapp.viewmodel.FirstFragmentViewModel
 import org.w3c.dom.Text
 import retrofit2.Call
 import retrofit2.Callback
@@ -32,6 +33,8 @@ class FirstFragment : Fragment() {
     private lateinit var ivPlayListPicture: ImageView
     private lateinit var trackRecyclerView: RecyclerView
     private lateinit var recyclerViewAdapter: TrackAdapter
+    private lateinit var firstFragmentViewModel: FirstFragmentViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,6 +45,21 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        firstFragmentViewModel = ViewModelProvider(this).get(FirstFragmentViewModel::class.java)
+
+        firstFragmentViewModel.getPlayListMutableLiveData()
+                .observe(viewLifecycleOwner, object : Observer<PlayList?>{
+                    override fun onChanged(t: PlayList?) {
+                        if(t != null) {
+                            displayData(t)
+                        }
+                        else {
+                            Toast.makeText(activity, "ERROR!!", Toast.LENGTH_LONG).show()
+                        }
+                    }
+
+                })
 
         deezerApiClient = DeezerApiClient.getDeezerApi()!!
 
@@ -62,7 +80,7 @@ class FirstFragment : Fragment() {
         playListId.setOnEditorActionListener{ v, actionId, event ->
             if(actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT){
                 val listId: String = playListId.text.toString()
-                searchPlayListById(listId)
+                firstFragmentViewModel.searchPlayListById(listId)
                 true
             }
             else {
@@ -70,23 +88,17 @@ class FirstFragment : Fragment() {
                 false
             }
         }
+
+        val secondFragmentButton: Button = view.findViewById(R.id.secondFragmentAction)
+
+        secondFragmentButton.setOnClickListener {
+            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+        }
     }
 
     //3773404202
     //1578812305
-    private fun searchPlayListById(id: String) {
-        deezerApiClient.getPlayListById(id).enqueue(object : Callback<PlayList>{
-            override fun onResponse(call: Call<PlayList>?, response: Response<PlayList>) {
-                displayData(response.body())
-                Toast.makeText(activity, "Success!", Toast.LENGTH_LONG).show()
-            }
 
-            override fun onFailure(call: Call<PlayList>?, t: Throwable) {
-                var m = t.message
-                Toast.makeText(activity, t.message, Toast.LENGTH_LONG).show()
-            }
-        })
-    }
 
     private fun displayData(data: PlayList) {
         tvPlayListTitle.text = data.title

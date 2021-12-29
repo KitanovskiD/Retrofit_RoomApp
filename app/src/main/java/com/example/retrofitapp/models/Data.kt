@@ -4,20 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class Data {
+class Data (
     @PrimaryKey
-    val id: Long
-    val title: String
-
-    var playListId: Long
-        get() = playListId
-        set(value) {playListId = value }
-
-
-    constructor(id: Long, title: String) {
-        this.id = id
-        this.title = title
-    }
-
-
-}
+    val id: Long = 0,
+    val title: String = "",
+    var playListId: Long = 0
+)

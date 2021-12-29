@@ -12,18 +12,20 @@ import com.example.retrofitapp.models.PlayList
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playListDao(): PlayListDao
 
-    private lateinit var instance: AppDatabase
+    companion object {
+        private var instance: AppDatabase? = null
 
-    fun getInstance(context: Context): AppDatabase {
-        if (instance == null) {
-            instance = createInstance(context)
+        fun getInstance(context: Context): AppDatabase {
+            if (instance == null) {
+                instance = createInstance(context)
+            }
+            return instance!!
         }
-        return instance
-    }
 
-    private fun createInstance(context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java, "playlist.db").build()
+        private fun createInstance(context: Context): AppDatabase {
+            return Room.databaseBuilder(
+                    context,
+                    AppDatabase::class.java, "playlist.db").build()
+        }
     }
 }

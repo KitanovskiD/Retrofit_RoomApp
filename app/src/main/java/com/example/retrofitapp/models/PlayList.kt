@@ -5,22 +5,13 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity
-class PlayList {
+class PlayList (
     @PrimaryKey
-    val id: Long
-    val title: String
-    val description: String
-    val picture: String
-
+    val id: Long = 0,
+    val title: String = "",
+    val description: String = "",
+    val picture: String = ""
+) {
     @Ignore
-    val tracks: Track
-
-
-    constructor(id: Long, title: String, description: String, picture: String, tracks: Track) {
-        this.id = id
-        this.title = title
-        this.description = description
-        this.picture = picture
-        this.tracks = tracks
-    }
+    val tracks: Track = Track()
 }
